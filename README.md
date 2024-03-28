@@ -12,7 +12,7 @@ This represents the student support code for the [Cycle Chronicles task].
 
 This [work] by [Carsten Gips] and [contributors] is licensed under [MIT].
 
-  [Cycle Chronicles task]: https://github.com/Programmiermethoden-CampusMinden/Prog2-Lecture/blob/master/homework/b07.md
+  [Cycle Chronicles task]: https://github.com/Programmiermethoden-CampusMinden/Prog2-Lecture/blob/master/homework/b08.md
   [work]: https://github.com/Programmiermethoden-CampusMinden/prog2_ybel_cyclechronicles
   [Carsten Gips]: https://github.com/cagix
   [contributors]: https://github.com/Programmiermethoden-CampusMinden/prog2_ybel_cyclechronicles/graphs/contributors
