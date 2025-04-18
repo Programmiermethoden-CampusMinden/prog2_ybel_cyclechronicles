@@ -4,8 +4,8 @@ import java.util.*;
 
 /** A small bike shop. */
 public class Shop {
-    private Queue<Order> pendingOrders = new LinkedList<>();
-    private Set<Order> completedOrders = new HashSet<>();
+    private final Queue<Order> pendingOrders = new LinkedList<>();
+    private final Set<Order> completedOrders = new HashSet<>();
 
     /**
      * Accept a repair order.
@@ -28,7 +28,7 @@ public class Shop {
     public boolean accept(Order o) {
         if (o.getBicycleType() == Type.GRAVEL) return false;
         if (o.getBicycleType() == Type.EBIKE) return false;
-        if (pendingOrders.stream().filter(x -> x.getCustomer().equals(o.getCustomer())).count() > 0)
+        if (pendingOrders.stream().anyMatch(x -> x.getCustomer().equals(o.getCustomer())))
             return false;
         if (pendingOrders.size() > 4) return false;
 
