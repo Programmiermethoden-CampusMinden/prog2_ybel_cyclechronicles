@@ -26,9 +26,9 @@ public class Shop {
      *     otherwise
      */
     public boolean accept(Order o) {
-        if (o.getBicycleType() == Type.GRAVEL) return false;
-        if (o.getBicycleType() == Type.EBIKE) return false;
-        if (pendingOrders.stream().anyMatch(x -> x.getCustomer().equals(o.getCustomer())))
+        if (o.bycicleType() == Type.GRAVEL) return false;
+        if (o.bycicleType() == Type.EBIKE) return false;
+        if (pendingOrders.stream().anyMatch(x -> x.customer().equals(o.customer())))
             return false;
         if (pendingOrders.size() > 4) return false;
 
