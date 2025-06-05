@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;              // für mock() und when()
 import cyclechronicles.Shop;
 import cyclechronicles.Order;
 import cyclechronicles.Type;
-
+import java.util.Optional;
 public class ShopTest {
 
     private Shop shop;
@@ -105,13 +105,54 @@ public class ShopTest {
      * gemockt werden müsste. In unserem Fall genügt der direkte Aufruf der Methode,
      * um die Ausnahme zu prüfen.
      */
+// Test: Ein reparierter Auftrag wird korrekt von pending zu completed verschoben
     @Test
-    void testRepair_shouldThrowUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class, () -> shop.repair());
+    void testRepair_shouldMoveOrderFromPendingToCompleted() {
+        Order mockOrder = mock(Order.class);
+        when(mockOrder.getBicycleType()).thenReturn(Type.RACE);
+        when(mockOrder.getCustomer()).thenReturn("kunde1");
+
+        shop.accept(mockOrder); // Auftrag wird angenommen
+        Optional<Order> repaired = shop.repair(); // Auftrag wird repariert
+
+        assertTrue(repaired.isPresent()); // Es wurde etwas repariert
+        assertEquals(mockOrder, repaired.get()); // Das reparierte Objekt ist das erwartete
     }
 
+    // Test: Wenn keine Aufträge vorliegen, gibt repair() Optional.empty() zurück
     @Test
-    void testDeliver_shouldThrowUnsupportedOperationException() {
-        UnsupportedOperationException kunde1 = assertThrows(UnsupportedOperationException.class, () -> shop.deliver("kunde1"));
+    void testRepair_withNoPendingOrders_shouldReturnEmpty() {
+        Optional<Order> result = shop.repair(); // Kein Auftrag vorhanden
+        assertTrue(result.isEmpty()); // Muss leer sein
+    }
+
+    // Test: Nach der Reparatur kann ein Auftrag dem richtigen Kunden ausgeliefert werden
+    @Test
+    void testDeliver_shouldReturnCompletedOrder() {
+        Order mockOrder = mock(Order.class);
+        when(mockOrder.getBicycleType()).thenReturn(Type.RACE);
+        when(mockOrder.getCustomer()).thenReturn("kunde1");
+
+        shop.accept(mockOrder);
+        shop.repair(); // Auftrag wird abgeschlossen
+
+        Optional<Order> delivered = shop.deliver("kunde1");
+        assertTrue(delivered.isPresent()); // Auftrag wurde geliefert
+        assertEquals(mockOrder, delivered.get()); // Der gelieferte Auftrag stimmt überein
+    }
+
+    // Test: Wenn ein Kunde keinen reparierten Auftrag hat, bekommt er nichts
+    @Test
+    void testDeliver_withUnknownCustomer_shouldReturnEmpty() {
+        Order mockOrder = mock(Order.class);
+        when(mockOrder.getBicycleType()).thenReturn(Type.RACE);
+        when(mockOrder.getCustomer()).thenReturn("kunde1");
+
+        shop.accept(mockOrder);
+        shop.repair(); // Auftrag wird abgeschlossen
+
+        Optional<Order> result = shop.deliver("kunde2"); // Falscher Kunde
+        assertTrue(result.isEmpty()); // Keine Lieferung möglich
     }
 }
+
