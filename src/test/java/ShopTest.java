@@ -1,9 +1,11 @@
+// Importiere JUnit- und Mockito-Funktionen
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;  // für assertTrue, assertFalse, assertThrows
+import static org.mockito.Mockito.*;              // für mock() und when()
 
+// Importiere die Klassen aus deinem Projekt
 import cyclechronicles.Shop;
 import cyclechronicles.Order;
 import cyclechronicles.Type;
@@ -12,38 +14,45 @@ public class ShopTest {
 
     private Shop shop;
 
+    // Wird vor jedem Test automatisch ausgeführt – setzt den Shop zurück (leerer Zustand)
     @BeforeEach
     void setUp() {
         shop = new Shop();
     }
 
+    // Test: Ein Auftrag mit einem zulässigen Fahrradtyp (RACE) wird akzeptiert
     @Test
     void testAccept_validRaceBike_shouldReturnTrue() {
-        Order mockOrder = mock(Order.class);
-        when(mockOrder.getBicycleType()).thenReturn(Type.RACE);
-        when(mockOrder.getCustomer()).thenReturn("kunde1");
+        Order mockOrder = mock(Order.class); // Erzeuge einen Mock-Auftrag
+        when(mockOrder.getBicycleType()).thenReturn(Type.RACE); // Simuliere: es ist ein RACE-Bike
+        when(mockOrder.getCustomer()).thenReturn("kunde1");      // Kunde heißt „kunde1“
 
+        // Erwartung: Auftrag wird angenommen
         assertTrue(shop.accept(mockOrder));
     }
 
+    // Test: Ein Gravel-Bike wird abgelehnt (laut Shop-Regel)
     @Test
     void testAccept_gravelBike_shouldReturnFalse() {
         Order mockOrder = mock(Order.class);
-        when(mockOrder.getBicycleType()).thenReturn(Type.GRAVEL);
+        when(mockOrder.getBicycleType()).thenReturn(Type.GRAVEL); // Verbotener Typ
         when(mockOrder.getCustomer()).thenReturn("kunde1");
 
+        // Erwartung: Auftrag wird abgelehnt
         assertFalse(shop.accept(mockOrder));
     }
 
+    // Test: Ein E-Bike wird ebenfalls abgelehnt
     @Test
     void testAccept_eBike_shouldReturnFalse() {
         Order mockOrder = mock(Order.class);
-        when(mockOrder.getBicycleType()).thenReturn(Type.EBIKE);
+        when(mockOrder.getBicycleType()).thenReturn(Type.EBIKE); // Verbotener Typ
         when(mockOrder.getCustomer()).thenReturn("kunde1");
 
         assertFalse(shop.accept(mockOrder));
     }
 
+    // Test: Derselbe Kunde darf nicht zwei offene Aufträge gleichzeitig haben
     @Test
     void testAccept_duplicateCustomer_shouldReturnFalse() {
         Order firstOrder = mock(Order.class);
@@ -52,37 +61,57 @@ public class ShopTest {
 
         Order secondOrder = mock(Order.class);
         when(secondOrder.getBicycleType()).thenReturn(Type.RACE);
-        when(secondOrder.getCustomer()).thenReturn("kunde1");
+        when(secondOrder.getCustomer()).thenReturn("kunde1"); // gleicher Kunde
 
-        assertTrue(shop.accept(firstOrder));   // Erster Auftrag ok
-        assertFalse(shop.accept(secondOrder)); // Zweiter wird abgelehnt
+        assertTrue(shop.accept(firstOrder));    // Erster Auftrag wird akzeptiert
+        assertFalse(shop.accept(secondOrder));  // Zweiter Auftrag wird abgelehnt
     }
 
+    // Test: Der Shop akzeptiert maximal 5 Aufträge von 5 unterschiedlichen Kunden
     @Test
     void testAccept_maximumFiveOrders_allowed() {
         for (int i = 1; i <= 5; i++) {
             Order mockOrder = mock(Order.class);
             when(mockOrder.getBicycleType()).thenReturn(Type.RACE);
-            when(mockOrder.getCustomer()).thenReturn("kunde" + i);
-
-            assertTrue(shop.accept(mockOrder));  // alle 5 erlaubt
+            when(mockOrder.getCustomer()).thenReturn("kunde" + i); // Jeder Kunde ist unterschiedlich
+            assertTrue(shop.accept(mockOrder)); // Alle 5 werden akzeptiert
         }
     }
 
+    // Test: Ein sechster Auftrag wird abgelehnt, wenn bereits 5 akzeptiert wurden
     @Test
     void testAccept_sixthOrder_shouldReturnFalse() {
+        // 5 gültige Aufträge
         for (int i = 1; i <= 5; i++) {
             Order mockOrder = mock(Order.class);
             when(mockOrder.getBicycleType()).thenReturn(Type.RACE);
             when(mockOrder.getCustomer()).thenReturn("kunde" + i);
-
-            assertTrue(shop.accept(mockOrder));  // bis 5 ok
+            assertTrue(shop.accept(mockOrder));
         }
 
+        // 6. Kunde → sollte abgelehnt werden
         Order sixthOrder = mock(Order.class);
         when(sixthOrder.getBicycleType()).thenReturn(Type.RACE);
         when(sixthOrder.getCustomer()).thenReturn("kunde6");
+        assertFalse(shop.accept(sixthOrder));
+    }
 
-        assertFalse(shop.accept(sixthOrder));  // 6. wird abgelehnt
+    /**
+     * Die Methoden `repair()` und `deliver()` sind noch nicht implementiert
+     * und werfen aktuell eine UnsupportedOperationException.
+     * Durch gezielte Tests stellen wir sicher, dass dieser Zustand dokumentiert ist.
+     * <p>
+     * Mockito wäre hier dann sinnvoll, wenn z. B. ein Order-Objekt im Rückgabewert
+     * gemockt werden müsste. In unserem Fall genügt der direkte Aufruf der Methode,
+     * um die Ausnahme zu prüfen.
+     */
+    @Test
+    void testRepair_shouldThrowUnsupportedOperationException() {
+        assertThrows(UnsupportedOperationException.class, () -> shop.repair());
+    }
+
+    @Test
+    void testDeliver_shouldThrowUnsupportedOperationException() {
+        UnsupportedOperationException kunde1 = assertThrows(UnsupportedOperationException.class, () -> shop.deliver("kunde1"));
     }
 }
